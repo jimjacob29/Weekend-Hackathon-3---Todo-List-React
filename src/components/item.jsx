@@ -12,18 +12,16 @@ export default function Item(props) {
   };
   return (
     <>
-      <div className="list">
-        <h1 className="list">{props.item.task}</h1>
-        <button
-          className="delete"
-          onClick={() => {
-            props.toDelete(props.index);
-          }}
-        >
-          {" "}
-          Delete
-        </button>
-      </div>
+      <li className="list">{props.item.task}</li>
+      <button
+        className="delete"
+        onClick={() => {
+          props.toDelete(props.index);
+        }}
+      >
+        {" "}
+        Delete
+      </button>
 
       <button className="edit" onClick={handleEditButton}>
         {" "}
