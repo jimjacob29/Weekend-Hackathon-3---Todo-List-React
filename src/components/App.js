@@ -1,64 +1,78 @@
 import React from "react";
 import "./../styles/App.css";
-import Item from "./item";
+import ListView from "./ListView";
 
-function App() {
-  const [toDoList, setToDoList] = React.useState([]);
-  const [value, setValue] = React.useState("");
-
-  const handleSaveChange = (event) => {
-    const currentValue = event.target.value;
-    setValue(currentValue);
-  };
-  const handleSave = () => {
-    if (value === "") {
+export default function App() {
+  const [newItem, setNewItem] = React.useState("");
+  const [editIndex, setEditIndex] = React.useState("-1");
+  const [editItem, setEditItem] = React.useState("");
+  const [list, setList] = React.useState([]);
+  const addToDo = () => {
+    let newToDo = newItem;
+    if (newToDo === "") {
       return;
     }
-    const tempToDo = [...toDoList];
-    const obj = {};
-    obj.task = value;
-    tempToDo.push(obj);
-    setToDoList(tempToDo);
-    setValue("");
+    let presentTask = list.map((item) => item.task);
+    if (presentTask.includes(newToDo)) {
+      setEditItem("");
+      return;
+    }
+    let newToDoObj = {
+      task: newToDo,
+      edit: false
+    };
+    let newList = [...list, newToDoObj];
+    setList(newList);
+    setNewItem("");
   };
-
+  const handleChange = (event) => {
+    setNewItem(event.target.value);
+  };
+  const handleEditChange = (event) => {
+    setEditItem(event.target.value);
+  };
+  const saveEditToDo = () => {
+    let listToEdit = [...list];
+    listToEdit[editIndex].task = editItem;
+    listToEdit[editIndex].edit = false;
+    setList(listToEdit);
+    setEditIndex(-1);
+    setEditItem("");
+  };
   const handleDelete = (index) => {
-    const tempToDo = [...toDoList];
-    tempToDo.splice(index, 1);
-    setToDoList(tempToDo);
+    let listToUpdate = [...list];
+    listToUpdate.splice(index, 1);
+    setList(listToUpdate);
   };
 
-  const handleEdit = (index, editValue) => {
-    if (editValue === "") {
-      return;
-    }
-    const tempToDo = [...toDoList];
-    tempToDo[index].task = editValue;
-    setToDoList(tempToDo);
+  const handleEdit = (index) => {
+    let editObj = list[index];
+    editObj.edit = true;
+    let newEditList = [...list];
+    newEditList[index] = editObj;
+    setEditIndex(index);
+    setList(newEditList);
   };
   return (
     <div id="main">
-      <input id="task" name="task" onChange={handleSaveChange} value={value} />
-      <button id="btn" onClick={handleSave}>
-        save
+      <input type="string" id="task" onChange={handleChange} value={newItem} />
+      <button style={{ margin: "5px" }} id="btn" onClick={addToDo}>
+        Add
       </button>
-      <div>
-        {toDoList.length === 0 ? (
-          <p>To-Do List is empty</p>
-        ) : (
-          toDoList.map((item, index) => (
-            <Item
-              key={item.task}
-              item={item}
-              toDelete={handleDelete}
-              toEdit={handleEdit}
-              index={index}
-            />
-          ))
-        )}
-      </div>
+      <br />
+      {list.map((item, index) => (
+        <ListView
+          task={item.task}
+          edit={item.edit}
+          key={index}
+          serial={index}
+          editItem={editItem}
+          handleEditChange={handleEditChange}
+          saveEditToDo={saveEditToDo}
+          handleDelete={() => handleDelete(index)}
+          handleEdit={() => handleEdit(index)}
+        />
+      ))}
     </div>
   );
 }
-
-export default App;
